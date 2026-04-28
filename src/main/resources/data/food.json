@@ -1,0 +1,17 @@
+{
+  "1110101": {
+    "id": 1110101,
+    "name": "米饭",
+    "description": "",
+    "price": 0.22,
+    "imageUrl": "resources/images/food/1110101.png",
+    "campus": "良乡校区",
+    "canteen": "南食堂",
+    "floor": "一层",
+    "window": "一号窗口",
+    "sellTime": "noon and night",
+    "tags": [
+      "主食","米饭"
+    ]
+  }
+}

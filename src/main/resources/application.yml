@@ -1,0 +1,47 @@
+# ==================== Canteen 服务端配置 ====================
+spring:
+  application:
+    name: canteen-server
+
+  # -------------------- 数据源配置 --------------------
+  datasource:
+    url: jdbc:mysql://localhost:3306/canteen_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: Ceobe100creativity
+    # TODO: 替换为你的数据库密码
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # -------------------- JPA / Hibernate 配置 --------------------
+  jpa:
+    hibernate:
+      # create-drop: 每次启动重建表（开发用）
+      # update:      自动更新表结构（测试用）
+      # validate:    仅校验表结构（生产用）
+      # none:        不做任何操作（生产推荐，配合 Flyway/Liquibase）
+      ddl-auto: validate
+      #update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+    open-in-view: false   # 关闭 OSIV，避免懒加载引发的连接占用问题
+
+  # -------------------- Jackson JSON 配置 --------------------
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+    default-property-inclusion: non_null   # 响应中不输出 null 字段
+
+# ==================== 服务器配置 ====================
+server:
+  port: 8080
+  servlet:
+    context-path: /api   # 所有接口前缀：/api/v1/...
+
+# ==================== 日志配置 ====================
+logging:
+  level:
+    com.canteen: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql: TRACE
