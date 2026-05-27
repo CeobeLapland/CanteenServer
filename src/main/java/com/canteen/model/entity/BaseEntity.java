@@ -11,14 +11,12 @@ import java.time.LocalDateTime;
 
 /**
  * 所有实体的公共基类
- *
  * <p>提供：
  * <ul>
  *   <li>id          — 自增主键</li>
  *   <li>createdAt   — 创建时间（自动填充）</li>
  *   <li>updatedAt   — 更新时间（自动填充）</li>
  * </ul>
- *
  * <p>子类只需标注 {@link jakarta.persistence.Entity} 即可继承这些字段，
  * 无需重复声明。如需启用自动审计，在配置类上加 {@code @EnableJpaAuditing}。
  */

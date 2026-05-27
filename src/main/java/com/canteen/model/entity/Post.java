@@ -10,7 +10,6 @@ import java.util.Set;
 
 /**
  * 帖子实体（食物评测/点评）
- *
  * <p>关系说明：
  * <ul>
  *   <li>Post ←→ Food  : 多对多，由本类维护关联表 {@code food_post}</li>
@@ -28,26 +27,18 @@ import java.util.Set;
 public class Post extends BaseEntity {
 
     /** 帖子标题 */
-    @Column(nullable = false, length = 200)
+    @Column(name = "title", nullable = false, length = 200)
     private String title;
 
     /** 帖子正文内容 */
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    /**
-     * 综合评分（1~5 星）
-     * 占位符：后续可细化为多维度评分（口味/分量/性价比）
-     */
-    @Column
-    private Integer rating;
+    @Column(name = "like_count")
+    private Integer likeCount = 0;   // 点赞数
 
-    // ========== 占位符字段 ==========
-    // @Column(name = "like_count")
-    // private Integer likeCount = 0;   // 点赞数
-
-    // @Column(name = "view_count")
-    // private Integer viewCount = 0;   // 浏览数
+    @Column(name = "view_count")
+    private Integer viewCount = 0;   // 浏览数
 
     // ========== 关联关系 ==========
 
@@ -61,16 +52,9 @@ public class Post extends BaseEntity {
 
     /**
      * 帖子涉及的菜品（多对多，主动方）
-     *
-     * <p>关联表 food_post 结构：
-     * <pre>
-     *   food_post (
-     *     post_id BIGINT FK → post.id,
-     *     food_id BIGINT FK → food.id
-     *   )
-     * </pre>
+     * 关联表 food_post 存储 post_id 和 food_id 外键列
      */
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany
     @JoinTable(
             name = "food_post",
             joinColumns = @JoinColumn(name = "post_id"),

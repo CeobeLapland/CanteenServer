@@ -16,17 +16,16 @@ import java.util.Optional;
 
 /**
  * 数据访问层（Repository）
- *
  * <p>所有 Repository 集中在此文件，后续可拆分为独立接口文件。
  * Spring Data JPA 会自动实现接口方法，无需手写 SQL（基础 CRUD）。
  * 复杂查询使用 {@code @Query} 编写 JPQL 或原生 SQL。
  */
 public class Repositories {
 
+
     // ======================================================
     //  UserRepository
     // ======================================================
-
     @Repository
     public interface UserRepository extends JpaRepository<User, Long> {
 
@@ -36,13 +35,12 @@ public class Repositories {
         /** 检查用户名是否已存在 */
         boolean existsByName(String name);
 
-        // TODO: 后续添加 findByEmail、findByPhone 等方法
     }
+
 
     // ======================================================
     //  FoodRepository
     // ======================================================
-
     @Repository
     public interface FoodRepository extends JpaRepository<Food, Long> {
 
@@ -52,18 +50,12 @@ public class Repositories {
         /** 按菜名精确查找 */
         Optional<Food> findByName(String name);
 
-        /**
-         * 查询评分最高的菜品（关联 Post 的平均分排序）
-         * TODO: 实现具体查询逻辑
-         */
-        // @Query("SELECT f FROM Food f ...")
-        // List<Food> findTopRatedFoods(Pageable pageable);
     }
+
 
     // ======================================================
     //  PostRepository
     // ======================================================
-
     @Repository
     public interface PostRepository extends JpaRepository<Post, Long> {
 
@@ -91,10 +83,10 @@ public class Repositories {
         long countCommentsByPostId(@Param("postId") Long postId);
     }
 
+
     // ======================================================
     //  CommentRepository
     // ======================================================
-
     @Repository
     public interface CommentRepository extends JpaRepository<Comment, Long> {
 

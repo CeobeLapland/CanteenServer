@@ -5,13 +5,11 @@ import lombok.*;
 
 /**
  * 评论实体
- *
  * <p>关系说明：
  * <ul>
  *   <li>Comment → Post : 多对一，存储 post_id 外键</li>
  *   <li>Comment → User : 多对一，存储 user_id 外键（评论者）</li>
  * </ul>
- *
  * <p>后续可扩展：
  * <ul>
  *   <li>parentComment — 支持评论回复（树形结构）</li>

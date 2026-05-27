@@ -8,17 +8,10 @@ import java.util.List;
 
 /**
  * 用户实体
- *
- * <p>当前版本仅包含基础字段（id、name），后续可按需扩展：
- * <ul>
- *   <li>password / 密码（加密存储）</li>
- *   <li>email / 手机号</li>
- *   <li>avatar / 头像 URL</li>
- *   <li>role / 角色（普通用户、管理员）</li>
- * </ul>
+ * <p>当前版本仅包含基础字段（id、name），后续可按需扩展
  */
 @Entity
-@Table(name = "users")
+@Table(name = "user")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -30,16 +23,9 @@ public class User extends BaseEntity {
     @Column(nullable = false, length = 50)
     private String name;
 
-    // ========== 占位符字段（后续扩展） ==========
-
-    // @Column(unique = true, length = 100)
-    // private String email;
-
-    // @Column(length = 20)
-    // private String phone;
-
-    // @Column(length = 200)
-    // private String avatarUrl;
+    /** 用户权限角色（如 ROLE_USER、ROLE_ADMIN），后续权限控制用 */
+    @Column(nullable = false, length = 20)
+    private String role = "ROLE_USER";
 
     // ========== 关联关系 ==========
 

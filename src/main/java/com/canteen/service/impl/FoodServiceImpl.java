@@ -49,6 +49,31 @@ public class FoodServiceImpl implements FoodService {
 
     @Override
     @Transactional(readOnly = true)
+    public java.util.List<FoodDetailDto> getAllFoodsNoPagination() {
+        return foodRepository.findAll().stream()
+                .map(foodMapper::toDetailDto)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public java.util.List<FoodDetailDto> getUpdatedFoods(String since) {
+        // 解析时间字符串
+        java.time.LocalDateTime sinceTime;
+        try {
+            sinceTime = java.time.LocalDateTime.parse(since);
+        } catch (java.time.format.DateTimeParseException e) {
+            throw new BadRequestException("无效的时间格式，必须为 ISO_LOCAL_DATE_TIME，例如 2024-01-01T00:00:00");
+        }
+
+        return foodRepository.findAll().stream()
+                .filter(food -> food.getUpdatedAt() != null && food.getUpdatedAt().isAfter(sinceTime))
+                .map(foodMapper::toDetailDto)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public PageResponse<FoodSummaryDto> searchFoods(String keyword, Pageable pageable) {
         Page<FoodSummaryDto> page = foodRepository
                 .findByNameContainingIgnoreCase(keyword, pageable)

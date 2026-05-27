@@ -5,18 +5,17 @@ import com.canteen.model.request.Requests.*;
 import com.canteen.model.response.PageResponse;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 /**
  * Service 接口层
- *
  * <p>定义业务逻辑的契约，实现类在 service/impl 包中。
  * 面向接口编程便于后续替换实现（例如引入缓存层）和单元测试（Mock）。
  */
-public class Services {
+public class Services
+{
 
-    // ======================================================
     //  UserService
-    // ======================================================
-
     public interface UserService
     {
 
@@ -29,12 +28,17 @@ public class Services {
         // TODO: updateUser、deleteUser、getUserByName 等
     }
 
-    // ======================================================
-    //  FoodService
-    // ======================================================
 
+
+    //  FoodService
     public interface FoodService
     {
+
+        /** 获取所有菜品（不分页，内部使用） */
+        List<FoodDetailDto> getAllFoodsNoPagination();
+
+        /** 获取自指定时间以来新增或更新的菜品列表（增量更新） */
+        List<FoodDetailDto> getUpdatedFoods(String since);
 
         /** 获取菜品详情 */
         FoodDetailDto getFoodById(Long id);
@@ -55,10 +59,9 @@ public class Services {
         void deleteFood(Long id);
     }
 
-    // ======================================================
-    //  PostService
-    // ======================================================
 
+
+    //  PostService
     public interface PostService
     {
 
@@ -87,10 +90,9 @@ public class Services {
         void deletePost(Long id);
     }
 
-    // ======================================================
-    //  CommentService
-    // ======================================================
 
+
+    //  CommentService
     public interface CommentService
     {
 

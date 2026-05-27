@@ -101,7 +101,8 @@ public class PostServiceImpl implements PostService {
         Post post = Post.builder()
                 .title(request.getTitle())
                 .content(request.getContent())
-                .rating(request.getRating())
+                .viewCount(request.getViewCount())
+                .likeCount(request.getLikeCount())
                 .author(author)
                 .build();
 
@@ -121,7 +122,8 @@ public class PostServiceImpl implements PostService {
         // 仅更新请求中不为空的字段
         if (request.getTitle() != null)   post.setTitle(request.getTitle());
         if (request.getContent() != null) post.setContent(request.getContent());
-        if (request.getRating() != null)  post.setRating(request.getRating());
+        if (request.getViewCount() != null) post.setViewCount(request.getViewCount());
+        if (request.getLikeCount() != null) post.setLikeCount(request.getLikeCount());
 
         // 更新关联菜品（若请求中包含）
         if (request.getFoodIds() != null && !request.getFoodIds().isEmpty()) {

@@ -1,15 +1,16 @@
 package com.canteen.model.request;
 
+import com.canteen.model.entity.Tag;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
-import java.math.BigDecimal;
+//import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
 /**
  * 请求体对象（Request Body）
- *
  * <p>用于接收客户端 POST/PUT 请求的 JSON 数据，配合 {@code @Valid} 进行参数校验。
  * 可将各类请求拆分为独立文件，此处集中管理便于初期快速开发。
  */
@@ -30,6 +31,7 @@ public class Requests {
         // TODO: 后续添加 email、password 等字段
     }
 
+
     // ======================================================
     //  Food 请求
     // ======================================================
@@ -45,9 +47,9 @@ public class Requests {
         @Size(max = 1000, message = "描述不超过 1000 字")
         private String description;
 
-        @DecimalMin(value = "0.0", inclusive = false, message = "价格须大于 0")
-        @Digits(integer = 6, fraction = 2, message = "价格格式不正确")
-        private BigDecimal price;
+        @NotNull(message = "价格不能为空")
+        @DecimalMin(value = "0.01", message = "价格必须大于 0")
+        private Integer price;
 
         private String imageUrl;
 
@@ -59,7 +61,7 @@ public class Requests {
         private String sellTime;
 
         /** 标签列表，允许为空 */
-        private List<String> tags;
+        private List<Tag> tags;
 
         // TODO: private String category;
     }
@@ -79,9 +81,9 @@ public class Requests {
         @NotBlank(message = "内容不能为空")
         private String content;
 
-        @Min(value = 1, message = "评分最低为 1 星")
-        @Max(value = 5, message = "评分最高为 5 星")
-        private Integer rating;
+        private Integer viewCount = 0;   // 可选，默认 0
+
+        private Integer likeCount = 0;   // 可选，默认 0
 
         /** 帖子作者 ID */
         @NotNull(message = "作者 ID 不能为空")
@@ -104,8 +106,9 @@ public class Requests {
 
         private String content;
 
-        @Min(1) @Max(5)
-        private Integer rating;
+        private Integer viewCount;
+
+        private Integer likeCount;
 
         private Set<Long> foodIds;
     }

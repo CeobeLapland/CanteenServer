@@ -1,5 +1,6 @@
 package com.canteen.model.dto;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -9,7 +10,6 @@ import java.util.Set;
 
 /**
  * DTO（Data Transfer Object）数据传输对象
- *
  * <p>将多个 DTO 集中在一个文件中便于管理，也可拆分为独立文件。
  * DTO 用于向客户端返回数据，不暴露 Entity 内部关联（避免循环序列化）。
  */
@@ -39,7 +39,7 @@ public class Dtos {
     public static class FoodSummaryDto {
         private Long id;
         private String name;
-        private BigDecimal price;
+        private Integer price;
         private String imageUrl;
         // 新增简要字段，方便客户端列表展示
         private String campus;
@@ -53,7 +53,7 @@ public class Dtos {
         private Long id;
         private String name;
         private String description;
-        private BigDecimal price;
+        private Integer price;
         private String imageUrl;
         private LocalDateTime createdAt;
 
@@ -80,7 +80,9 @@ public class Dtos {
     public static class PostSummaryDto {
         private Long id;
         private String title;
-        private Integer rating;
+
+        private Integer viewCount;
+        private Integer likeCount;
         private UserDto author;
         private List<FoodSummaryDto> foods;
         private int commentCount;
@@ -93,7 +95,9 @@ public class Dtos {
         private Long id;
         private String title;
         private String content;
-        private Integer rating;
+
+        private Integer viewCount;
+        private Integer likeCount;
         private UserDto author;
         private Set<FoodSummaryDto> foods;
         private List<CommentDto> comments;
@@ -112,7 +116,6 @@ public class Dtos {
         private String content;
         private UserDto author;
         private LocalDateTime createdAt;
-
         // 后续扩展（楼中楼）
         // private Long parentId;
         // private List<CommentDto> replies;

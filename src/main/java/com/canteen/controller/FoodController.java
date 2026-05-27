@@ -14,11 +14,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * 菜品相关接口
- *
  * <p>基础路径：/api/v1/foods
- *
  * <table border="1">
  *   <tr><th>方法</th><th>路径</th><th>描述</th></tr>
  *   <tr><td>GET</td><td>/api/v1/foods</td><td>菜品列表（分页）</td></tr>
@@ -37,17 +37,37 @@ public class FoodController {
     private final FoodService foodService;
 
     /**
+     * 全量拉取所有菜品（不分页）
+     * <p>GET /api/v1/foods/all
+     * <p>仅供内部使用，前端请勿调用（数据量大时会有性能问题）。后续可删除或改为管理员接口。
+     */
+    @GetMapping("/all")
+    public ResponseEntity<ApiResponse<List<FoodDetailDto>>> getAllFoodsNoPagination() {
+        List<FoodDetailDto> result = foodService.getAllFoodsNoPagination();
+        return ResponseEntity.ok(ApiResponse.ok(result));
+    }
+
+    /**
+     * 获取已更新的菜品列表（增量更新）
+     * <p>GET /api/v1/foods/updated?since=2024-01-01T00:00:00
+     * <p>返回自指定时间以来新增或更新的菜品列表，供前端增量更新使用。
+     */
+    @GetMapping("/updated")
+    public ResponseEntity<ApiResponse<List<FoodDetailDto>>> getUpdatedFoods(@RequestParam String since) {
+        List<FoodDetailDto> result = foodService.getUpdatedFoods(since);
+        return ResponseEntity.ok(ApiResponse.ok(result));
+    }
+
+    /**
      * 获取所有菜品（分页）
-     *
      * <p>GET /api/v1/foods?page=0&size=10&sort=name,asc
-     *
      * @param page 页码（从 0 开始，默认 0）
      * @param size 每页数量（默认 10）
      */
     @GetMapping
     public ResponseEntity<ApiResponse<PageResponse<FoodSummaryDto>>> getAllFoods(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size)
+    {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         PageResponse<FoodSummaryDto> result = foodService.getAllFoods(pageable);
         return ResponseEntity.ok(ApiResponse.ok(result));
@@ -55,7 +75,6 @@ public class FoodController {
 
     /**
      * 搜索菜品（按名称模糊匹配，分页）
-     *
      * <p>GET /api/v1/foods/search?keyword=红烧&page=0&size=10
      */
     @GetMapping("/search")
@@ -70,7 +89,6 @@ public class FoodController {
 
     /**
      * 获取菜品详情
-     *
      * <p>GET /api/v1/foods/{id}
      */
     @GetMapping("/{id}")
@@ -81,7 +99,6 @@ public class FoodController {
 
     /**
      * 新增菜品
-     *
      * <p>POST /api/v1/foods
      * <p>请求体示例：
      * <pre>
@@ -102,7 +119,6 @@ public class FoodController {
 
     /**
      * 更新菜品信息
-     *
      * <p>PUT /api/v1/foods/{id}
      */
     @PutMapping("/{id}")
@@ -115,7 +131,6 @@ public class FoodController {
 
     /**
      * 删除菜品
-     *
      * <p>DELETE /api/v1/foods/{id}
      */
     @DeleteMapping("/{id}")

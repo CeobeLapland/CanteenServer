@@ -12,10 +12,8 @@ import java.util.Set;
 
 /**
  * MapStruct Entity ↔ DTO 转换器
- *
  * <p>MapStruct 在编译期生成实现类，无运行时反射，性能优异。
  * 所有 Mapper 集中在此文件，若业务复杂可拆分为独立接口。
- *
  * <p>Spring 会将生成的实现类注册为 Bean，直接 {@code @Autowired} 即可使用。
  */
 public class Mappers {
@@ -23,7 +21,6 @@ public class Mappers {
     // ======================================================
     //  UserMapper
     // ======================================================
-
     @org.mapstruct.Mapper(componentModel = "spring")
     public interface UserMapper {
 
@@ -32,10 +29,10 @@ public class Mappers {
         List<UserDto> toDtoList(List<User> users);
     }
 
+
     // ======================================================
     //  FoodMapper
     // ======================================================
-
     @org.mapstruct.Mapper(componentModel = "spring")
     public interface FoodMapper {
 
@@ -53,10 +50,10 @@ public class Mappers {
         Set<FoodSummaryDto> toSummaryDtoSet(Set<Food> foods);
     }
 
+
     // ======================================================
     //  PostMapper
     // ======================================================
-
     @org.mapstruct.Mapper(componentModel = "spring", uses = {UserMapper.class, FoodMapper.class})
     public interface PostMapper {
 
@@ -73,10 +70,10 @@ public class Mappers {
         List<PostSummaryDto> toSummaryDtoList(List<Post> posts);
     }
 
+
     // ======================================================
     //  CommentMapper
     // ======================================================
-
     @org.mapstruct.Mapper(componentModel = "spring", uses = {UserMapper.class})
     public interface CommentMapper {
 

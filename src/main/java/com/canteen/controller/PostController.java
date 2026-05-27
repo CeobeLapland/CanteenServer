@@ -16,9 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 /**
  * 帖子（点评）相关接口
- *
  * <p>基础路径：/api/v1/posts
- *
  * <table border="1">
  *   <tr><th>方法</th><th>路径</th><th>描述</th></tr>
  *   <tr><td>GET</td><td>/api/v1/posts</td><td>首页 Feed（最新帖子，分页）</td></tr>
@@ -40,7 +38,6 @@ public class PostController {
 
     /**
      * 获取首页 Feed（最新帖子，按时间倒序，分页）
-     *
      * <p>GET /api/v1/posts?page=0&size=10
      */
     @GetMapping
@@ -53,7 +50,6 @@ public class PostController {
 
     /**
      * 按标题搜索帖子（分页）
-     *
      * <p>GET /api/v1/posts/search?keyword=红烧肉&page=0&size=10
      */
     @GetMapping("/search")
@@ -67,7 +63,6 @@ public class PostController {
 
     /**
      * 获取帖子详情（含评论列表）
-     *
      * <p>GET /api/v1/posts/{id}
      */
     @GetMapping("/{id}")
@@ -77,7 +72,6 @@ public class PostController {
 
     /**
      * 获取某菜品下的所有帖子（分页）
-     *
      * <p>GET /api/v1/posts/food/{foodId}?page=0&size=10
      */
     @GetMapping("/food/{foodId}")
@@ -91,7 +85,6 @@ public class PostController {
 
     /**
      * 获取某用户的所有帖子（分页）
-     *
      * <p>GET /api/v1/posts/user/{userId}?page=0&size=10
      */
     @GetMapping("/user/{userId}")
@@ -105,7 +98,6 @@ public class PostController {
 
     /**
      * 发布帖子
-     *
      * <p>POST /api/v1/posts
      * <p>请求体示例：
      * <pre>
@@ -127,7 +119,6 @@ public class PostController {
 
     /**
      * 更新帖子（仅更新提供的字段）
-     *
      * <p>PUT /api/v1/posts/{id}
      */
     @PutMapping("/{id}")
@@ -140,7 +131,6 @@ public class PostController {
 
     /**
      * 删除帖子
-     *
      * <p>DELETE /api/v1/posts/{id}
      */
     @DeleteMapping("/{id}")

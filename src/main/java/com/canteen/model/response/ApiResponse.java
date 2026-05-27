@@ -2,12 +2,10 @@ package com.canteen.model.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
-
 import java.time.LocalDateTime;
 
 /**
  * 统一 API 响应包装类
- *
  * <p>所有接口返回值均包装为此格式，便于 Android 端统一解析：
  * <pre>
  * {
@@ -18,7 +16,6 @@ import java.time.LocalDateTime;
  *   "timestamp": "2025-01-01 12:00:00"
  * }
  * </pre>
- *
  * @param <T> 业务数据类型
  */
 @Getter

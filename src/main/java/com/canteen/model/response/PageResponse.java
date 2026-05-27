@@ -7,10 +7,8 @@ import java.util.List;
 
 /**
  * 分页响应包装类
- *
  * <p>从 Spring Data 的 {@link Page} 转换而来，隐藏内部实现细节，
  * 只向客户端暴露必要的分页信息。
- *
  * @param <T> 列表元素类型
  */
 @Getter
@@ -45,7 +43,6 @@ public class PageResponse<T> {
 
     /**
      * 从 Spring Data {@link Page} 对象构建
-     *
      * @param springPage Spring Data 分页结果
      * @param <T>        元素类型
      */
