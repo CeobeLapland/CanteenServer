@@ -24,5 +24,5 @@ public class Floor extends BaseEntity {
     /** 食堂名称 */
     @ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
     @JoinColumn(name = "canteen_id", nullable = false)
-    private String canteen;
+    private Canteen canteen;
 }

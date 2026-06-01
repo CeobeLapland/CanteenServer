@@ -10,9 +10,10 @@ import com.canteen.model.entity.User;
 import com.canteen.model.request.Requests.CreatePostRequest;
 import com.canteen.model.request.Requests.UpdatePostRequest;
 import com.canteen.model.response.PageResponse;
-import com.canteen.repository.Repositories.FoodRepository;
-import com.canteen.repository.Repositories.PostRepository;
-import com.canteen.repository.Repositories.UserRepository;
+
+import com.canteen.repository.FoodRepository;
+import com.canteen.repository.PostRepository;
+import com.canteen.repository.UserRepository;
 import com.canteen.service.Services.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

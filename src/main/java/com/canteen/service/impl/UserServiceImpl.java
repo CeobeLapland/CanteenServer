@@ -5,7 +5,7 @@ import com.canteen.mapper.Mappers.UserMapper;
 import com.canteen.model.dto.Dtos.UserDto;
 import com.canteen.model.entity.User;
 import com.canteen.model.request.Requests.CreateUserRequest;
-import com.canteen.repository.Repositories.UserRepository;
+import com.canteen.repository.UserRepository;
 import com.canteen.service.Services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

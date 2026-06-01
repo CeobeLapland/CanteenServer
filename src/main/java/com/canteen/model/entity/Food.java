@@ -61,7 +61,7 @@ public class Food extends BaseEntity {
     private String sellTime;
 
     /** 全局综合评分（0.0 ~ 5.0） */
-    @Column(name = "average_rating", precision = 3, scale = 2)
+    @Column(name = "average_rating")//, precision = 3, scale = 2)
     private float averageRating = 0f;
 
     /** 参与评分的总人数 */

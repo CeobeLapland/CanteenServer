@@ -19,16 +19,16 @@ public class Window extends BaseEntity {
     /** 校区 */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "campus_id", nullable = false)
-    private String campus;
+    private Campus campus;
 
     /** 食堂名称 */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "canteen_id", nullable = false)
-    private String canteen;
+    private Canteen canteen;
 
     /** 楼层 */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "floor_id", nullable = false)
-    private String floor;
+    private Floor floor;
 
 }

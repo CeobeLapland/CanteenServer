@@ -1,7 +1,9 @@
 package com.canteen.controller;
 
+import com.canteen.model.dto.Dtos;
 import com.canteen.model.dto.Dtos.FoodDetailDto;
 import com.canteen.model.dto.Dtos.FoodSummaryDto;
+import com.canteen.model.request.Requests;
 import com.canteen.model.request.Requests.CreateFoodRequest;
 import com.canteen.model.response.ApiResponse;
 import com.canteen.model.response.PageResponse;
@@ -25,8 +27,10 @@ import java.util.List;
  *   <tr><td>GET</td><td>/api/v1/foods/search</td><td>搜索菜品</td></tr>
  *   <tr><td>GET</td><td>/api/v1/foods/{id}</td><td>菜品详情</td></tr>
  *   <tr><td>POST</td><td>/api/v1/foods</td><td>新增菜品</td></tr>
+ *   <tr><td>POST</td><td>/api/v1/foods/batch</td><td>批量新增菜品</td></tr>
  *   <tr><td>PUT</td><td>/api/v1/foods/{id}</td><td>更新菜品</td></tr>
  *   <tr><td>DELETE</td><td>/api/v1/foods/{id}</td><td>删除菜品</td></tr>
+ *   <tr><td>POST</td><td>/api/v1/foods/filter</td><td>按照FilterFoodRequest筛选菜品（分页）</td></tr>
  * </table>
  */
 @RestController
@@ -35,6 +39,15 @@ import java.util.List;
 public class FoodController {
 
     private final FoodService foodService;
+
+    /**
+     * 测试函数
+     * <p>GET /api/v1/foods/test
+     */
+    @GetMapping("/test")
+    public ResponseEntity<ApiResponse<String>> test() {
+        return ResponseEntity.ok(ApiResponse.ok("接口测试成功"));
+    }
 
     /**
      * 全量拉取所有菜品（不分页）
@@ -117,6 +130,33 @@ public class FoodController {
         return ResponseEntity.status(201).body(ApiResponse.created(created));
     }
 
+    /** 批量新增菜品
+     * <p>POST /api/v1/foods/batch
+     * <p>请求体示例：
+     * <pre>
+     * [
+     *   {
+     *     "name": "红烧肉",
+     *     "description": "肥而不腻，入口即化",
+     *     "price": 12.00,
+     *     "imageUrl": "https://example.com/img/hongshaorou.jpg"
+     *   },
+     *   {
+     *     "name": "宫保鸡丁",
+     *     "description": "香辣可口，鸡肉鲜嫩",
+     *     "price": 10.00,
+     *     "imageUrl": "https://example.com/img/gongbaojiding.jpg"
+     *   }
+     * ]
+     * </pre>
+     */
+    @PostMapping("/batch")
+    public ResponseEntity<ApiResponse<List<FoodDetailDto>>> createFoods(
+            @Valid @RequestBody List<CreateFoodRequest> requests) {
+        List<FoodDetailDto> createdList = foodService.createFoods(requests);
+        return ResponseEntity.status(201).body(ApiResponse.created(createdList));
+    }
+
     /**
      * 更新菜品信息
      * <p>PUT /api/v1/foods/{id}
@@ -138,4 +178,83 @@ public class FoodController {
         foodService.deleteFood(id);
         return ResponseEntity.ok(ApiResponse.ok());
     }
+
+    /**
+     * 按照FilterFoodRequest筛选菜品（分页）
+     * <p>POST /api/v1/foods/filter?page=0&size=10
+     * <p>请求体示例：
+     * <pre>
+     * {
+     *   "name": "肉",
+     *   "campus": "主校区",
+     *   "canteen": "一食堂",
+     *   "floor": "二层",
+     *   "window": "窗口1",
+     *   "minPrice": 5,
+     *   "maxPrice": 20
+     * }
+     * </pre>
+     */
+    @PostMapping("/filter")
+    public ResponseEntity<ApiResponse<PageResponse<FoodSummaryDto>>> filterFoods(
+            @Valid @RequestBody Requests.FilterFoodRequest request,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        PageResponse<FoodSummaryDto> result = foodService.filterFoods(request, pageable);
+        return ResponseEntity.ok(ApiResponse.ok(result));
+    }
+
+
+
+    // 其他的一部分先写在FoodService里，后续再根据需要添加到Controller里
+    /**
+     * 获取所有Tag列表（不分页）
+     * <p>GET /api/v1/foods/tags
+     */
+    @GetMapping("/tags")
+    public ResponseEntity<ApiResponse<List<Dtos.TagDto>>> getAllTags() {
+        List<Dtos.TagDto> tags = foodService.getAllTags();
+        return ResponseEntity.ok(ApiResponse.ok(tags));
+    }
+
+    /**
+     * 获取所有window列表（不分页）
+     * <p>GET /api/v1/foods/windows
+     */
+    @GetMapping("/windows")
+    public ResponseEntity<ApiResponse<List<Dtos.WindowDto>>> getAllWindows() {
+        List<Dtos.WindowDto> windows = foodService.getAllWindows();
+        return ResponseEntity.ok(ApiResponse.ok(windows));
+    }
+
+    /**
+     * 获取所有floor列表（不分页）
+     * <p>GET /api/v1/foods/floors
+     */
+    /*@GetMapping("/floors")
+    public ResponseEntity<ApiResponse<List<Dtos.FloorDto>>> getAllFloors() {
+        List<Dtos.FloorDto> floors = foodService.getAllFloors();
+        return ResponseEntity.ok(ApiResponse.ok(floors));
+    }*/
+
+    /**
+     * 获取所有canteen列表（不分页）
+     * <p>GET /api/v1/foods/canteens
+     */
+    /*@GetMapping("/canteens")
+    public ResponseEntity<ApiResponse<List<Dtos.CanteenDto>>> getAllCanteens() {
+        List<Dtos.CanteenDto> canteens = foodService.getAllCanteens();
+        return ResponseEntity.ok(ApiResponse.ok(canteens));
+    }*/
+
+    /**
+     * 获取所有campus列表（不分页）
+     * <p>GET /api/v1/foods/campuses
+     */
+    /*@GetMapping("/campuses")
+    public ResponseEntity<ApiResponse<List<Dtos.CampusDto>>> getAllCampuses() {
+        List<Dtos.CampusDto> campuses = foodService.getAllCampuses();
+        return ResponseEntity.ok(ApiResponse.ok(campuses));
+    }*/
 }

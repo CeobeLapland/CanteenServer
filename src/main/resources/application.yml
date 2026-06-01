@@ -5,7 +5,7 @@ spring:
 
   # -------------------- 数据源配置 --------------------
   datasource:
-    url: jdbc:mysql://localhost:3306/canteen_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/canteen?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root
     password: Ceobe100creativity
     # TODO: 替换为你的数据库密码
@@ -18,7 +18,7 @@ spring:
       # update:      自动更新表结构（测试用）
       # validate:    仅校验表结构（生产用）
       # none:        不做任何操作（生产推荐，配合 Flyway/Liquibase）
-      ddl-auto: validate
+      ddl-auto: none  # validate
       #update
     show-sql: true
     properties:

@@ -52,11 +52,27 @@ public class Services
         /** 创建菜品 */
         FoodDetailDto createFood(CreateFoodRequest request);
 
-        /** 更新菜品 */
+        /** 批量创建菜品 */
+        List<FoodDetailDto> createFoods(List<CreateFoodRequest> requests);
+
+        /** 更新菜品
+         * 这个目前先用CreateFoodRequest，后续如果需要区分创建和更新的字段，再换成 UpdateFoodRequest。
+         */
         FoodDetailDto updateFood(Long id, CreateFoodRequest request);
 
         /** 删除菜品 */
         void deleteFood(Long id);
+
+
+        /** 筛选菜品 FilterFoodRequest */
+        PageResponse<FoodSummaryDto> filterFoods(FilterFoodRequest request, Pageable pageable);
+
+
+        /** 获取所有Tag列表 */
+        List<TagDto> getAllTags();
+
+        /** 获取所有窗口列表（包含食堂、楼层、窗口信息） */
+        List<WindowDto> getAllWindows();
     }
 
 

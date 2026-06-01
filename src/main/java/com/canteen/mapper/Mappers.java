@@ -1,10 +1,7 @@
 package com.canteen.mapper;
 
 import com.canteen.model.dto.Dtos.*;
-import com.canteen.model.entity.Comment;
-import com.canteen.model.entity.Food;
-import com.canteen.model.entity.Post;
-import com.canteen.model.entity.User;
+import com.canteen.model.entity.*;
 import org.mapstruct.*;
 
 import java.util.List;
@@ -43,6 +40,9 @@ public class Mappers {
          * postCount 由 Service 层手动填充（避免 N+1 查询）
          */
         @Mapping(target = "postCount", ignore = true)
+        //@Mapping(target = "tags", source = "tags", defaultValueExpression = "java(tags.stream().map(Tag::getName).toList())")
+        @Mapping(target = "tags",
+                expression = "java(food.getTags().stream().map(com.canteen.model.entity.Tag::getName).toList())")
         FoodDetailDto toDetailDto(Food food);
 
         List<FoodSummaryDto> toSummaryDtoList(List<Food> foods);
@@ -64,7 +64,9 @@ public class Mappers {
         @Mapping(target = "commentCount", ignore = true)
         PostSummaryDto toSummaryDto(Post post);
 
-        /** 转换为详情 DTO（包含评论列表） */
+        /**
+         * 转换为详情 DTO（包含评论列表）
+         */
         PostDetailDto toDetailDto(Post post);
 
         List<PostSummaryDto> toSummaryDtoList(List<Post> posts);
@@ -80,5 +82,49 @@ public class Mappers {
         CommentDto toDto(Comment comment);
 
         List<CommentDto> toDtoList(List<Comment> comments);
+    }
+
+
+    //TagMapper（后续扩展用）
+    @org.mapstruct.Mapper(componentModel = "spring")
+    public interface TagMapper {
+        TagDto toDto(Tag tag);
+
+        List<TagDto> toDtoList(List<Tag> tags);
+    }
+
+    // CampusMapper（后续扩展用）
+    /*@org.mapstruct.Mapper(componentModel = "spring")
+    public interface CampusMapper {
+
+        String toDto(Campus campus);
+    }
+
+    // CanteenMapper（后续扩展用）
+    @org.mapstruct.Mapper(componentModel = "spring")
+    public interface CanteenMapper {
+        CanteenDto toDto(Canteen canteen);
+
+        List<CanteenDto> toDtoList(List<Canteen> canteens);
+    }
+
+    // FloorMapper（后续扩展用）
+    @org.mapstruct.Mapper(componentModel = "spring")
+    public interface FloorMapper {
+        FloorDto toDto(Floor floor);
+
+        List<FloorDto> toDtoList(List<Floor> floors);
+    }*/
+
+    // WindowMapper（后续扩展用）
+    @org.mapstruct.Mapper(componentModel = "spring")
+    public interface WindowMapper {
+        @Mapping(target = "campus", source = "campus.name")
+        @Mapping(target = "canteen", source = "canteen.name")
+        @Mapping(target = "floor", source = "floor.name")
+        @Mapping(target = "name", source = "name")
+        WindowDto toDto(Window window);
+
+        //List<WindowDto> toDtoList(List<Window> windows);
     }
 }

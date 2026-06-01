@@ -1,22 +1,30 @@
 package com.canteen.service.impl;
 
 import com.canteen.exception.Exceptions.*;
+import com.canteen.mapper.Mappers;
 import com.canteen.mapper.Mappers.FoodMapper;
+import com.canteen.model.dto.Dtos;
 import com.canteen.model.dto.Dtos.FoodDetailDto;
 import com.canteen.model.dto.Dtos.FoodSummaryDto;
 import com.canteen.model.entity.Food;
+import com.canteen.model.request.Requests.FilterFoodRequest;
 import com.canteen.model.request.Requests.CreateFoodRequest;
 import com.canteen.model.response.PageResponse;
-import com.canteen.repository.Repositories.FoodRepository;
+
+import com.canteen.repository.TagRepository;
+import com.canteen.repository.WindowRepository;
+import com.canteen.repository.FoodRepository;
 import com.canteen.service.Services.FoodService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.mapstruct.Mapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * FoodService 实现类
@@ -28,6 +36,16 @@ public class FoodServiceImpl implements FoodService {
 
     private final FoodRepository foodRepository;
     private final FoodMapper foodMapper;
+
+    private final TagRepository tagRepository;
+    private final Mappers.TagMapper tagMapper;
+
+    // 把其他四个仓库也写一下吧，先这样凑合，能跑就行
+    //private final Repositories.CampusRepository campusRepository;
+    //private final Repositories.CanteenRepository canteenRepository;
+    //private final Repositories.FloorRepository postRepository;
+    private final WindowRepository windowRepository;
+    private final Mappers.WindowMapper windowMapper;
 
     @Override
     @Transactional(readOnly = true)
@@ -107,6 +125,33 @@ public class FoodServiceImpl implements FoodService {
 
     @Override
     @Transactional
+    public List<FoodDetailDto> createFoods(List<CreateFoodRequest> requests) {
+        List<Food> foods = requests.stream()
+                .map(req -> Food.builder()
+                        .name(req.getName())
+                        .description(req.getDescription())
+                        .price(req.getPrice())
+                        .imageUrl(req.getImageUrl())
+                        .campus(req.getCampus())
+                        .canteen(req.getCanteen())
+                        .floor(req.getFloor())
+                        .window(req.getWindow())
+                        .sellTime(req.getSellTime())
+                        .tags(req.getTags() == null ? new ArrayList<>() : req.getTags())
+                        .build())
+                .toList();
+
+        List<Food> savedFoods = foodRepository.saveAll(foods);
+        log.info("批量菜品创建成功: count={}", savedFoods.size());
+
+        return savedFoods.stream()
+                .map(foodMapper::toDetailDto)
+                .peek(dto -> dto.setPostCount(0))
+                .toList();
+    }
+
+    @Override
+    @Transactional
     public FoodDetailDto updateFood(Long id, CreateFoodRequest request) {
         Food food = findFoodOrThrow(id);
 
@@ -141,6 +186,43 @@ public class FoodServiceImpl implements FoodService {
         foodRepository.delete(food);
         log.info("菜品删除成功: id={}", id);
     }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponse<FoodSummaryDto> filterFoods(FilterFoodRequest request, Pageable pageable) {
+        Page<FoodSummaryDto> page = foodRepository.
+                filterFoods(request.getName(),
+                        request.getCampus(),
+                        request.getCanteen(),
+                        request.getFloor(),
+                        request.getWindow(),
+                        request.getMinPrice(),// != null ? request.getMinPrice() : 0,
+                        request.getMaxPrice(),// != null ? request.getMaxPrice() : Integer.MAX_VALUE,
+                        pageable)
+                .map(foodMapper::toSummaryDto);
+        // 为空判断写在了repository的SQL里了，避免了在这里的复杂判断
+        return PageResponse.of(page);
+    }
+
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Dtos.TagDto> getAllTags() {
+        return tagRepository.findAll().stream()
+                .map(tagMapper::toDto)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Dtos.WindowDto> getAllWindows() {
+        return windowRepository.findAll().stream()
+                .map(windowMapper::toDto)
+                .toList();
+    }
+
 
     // ==================== 内部工具方法 ====================
 

@@ -24,6 +24,7 @@ public class Dtos {
     public static class UserDto {
         private Long id;
         private String name;
+        private String permission; // 例如 "USER"、"ADMIN"
         private LocalDateTime createdAt;
 
         // TODO: 后续加字段时，在 UserMapper 中同步添加映射
@@ -119,5 +120,21 @@ public class Dtos {
         // 后续扩展（楼中楼）
         // private Long parentId;
         // private List<CommentDto> replies;
+    }
+
+
+
+    @Data
+    public static class WindowDto {
+        private String name;
+
+        private String floor;
+        private String canteen;
+        private String campus;
+    }
+
+    @Data
+    public static class TagDto {
+        private String name;
     }
 }

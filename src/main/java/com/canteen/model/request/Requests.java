@@ -66,6 +66,54 @@ public class Requests {
         // TODO: private String category;
     }
 
+
+    /** 更新菜品请求（允许部分字段为空，表示不更新） */
+    @Data
+    public static class UpdateFoodRequest {
+        @Size(max = 100, message = "菜品名称不超过 100 字")
+        private String name;
+
+        @Size(max = 1000, message = "描述不超过 1000 字")
+        private String description;
+
+        @DecimalMin(value = "0.01", message = "价格必须大于 0")
+        private Integer price;
+
+        private String imageUrl;
+
+        // 新增字段：地理/销售信息
+        private String campus;
+        private String canteen;
+        private String floor;
+        private String window;
+        private String sellTime;
+
+        /** 标签列表，允许为空 */
+        private List<Tag> tags;
+    }
+
+
+    /** 删选菜品请求（GET 请求的查询参数） */
+    @Data
+    public static class FilterFoodRequest {
+
+        private String name;    // 按名称模糊匹配
+
+        private String campus;  // 按校区精确匹配
+
+        private String canteen; // 按食堂精确匹配
+
+        private String floor;   // 按楼层精确匹配
+
+        private String window;  // 按窗口精确匹配
+
+        private List<String> tags;     // 按标签模糊匹配（至少包含一个标签）
+
+        private Integer minPrice;   // 价格区间下限
+
+        private Integer maxPrice;   // 价格区间上限
+    }
+
     // ======================================================
     //  Post 请求
     // ======================================================
