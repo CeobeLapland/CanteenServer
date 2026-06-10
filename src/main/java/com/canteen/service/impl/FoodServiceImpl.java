@@ -106,7 +106,7 @@ public class FoodServiceImpl implements FoodService {
                 .name(request.getName())
                 .description(request.getDescription())
                 .price(request.getPrice())
-                .imageUrl(request.getImageUrl())
+                //.imageUrl(request.getImageUrl())
                 .campus(request.getCampus())
                 .canteen(request.getCanteen())
                 .floor(request.getFloor())
@@ -131,7 +131,7 @@ public class FoodServiceImpl implements FoodService {
                         .name(req.getName())
                         .description(req.getDescription())
                         .price(req.getPrice())
-                        .imageUrl(req.getImageUrl())
+                        //.imageUrl(req.getImageUrl())
                         .campus(req.getCampus())
                         .canteen(req.getCanteen())
                         .floor(req.getFloor())
@@ -159,7 +159,7 @@ public class FoodServiceImpl implements FoodService {
         if (request.getName() != null)        food.setName(request.getName());
         if (request.getDescription() != null) food.setDescription(request.getDescription());
         if (request.getPrice() != null)       food.setPrice(request.getPrice());
-        if (request.getImageUrl() != null)    food.setImageUrl(request.getImageUrl());
+        //if (request.getImageUrl() != null)    food.setImageUrl(request.getImageUrl());
 
         // 更新新增字段
         if (request.getCampus() != null)      food.setCampus(request.getCampus());
@@ -202,6 +202,24 @@ public class FoodServiceImpl implements FoodService {
                         pageable)
                 .map(foodMapper::toSummaryDto);
         // 为空判断写在了repository的SQL里了，避免了在这里的复杂判断
+        return PageResponse.of(page);
+    }
+
+    //上面那个没写Tag，这里补一版查询函数
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponse<FoodSummaryDto> filterFoodsWithTags(FilterFoodRequest request, Pageable pageable) {
+        Page<FoodSummaryDto> page = foodRepository.
+                filterFoodsWithTags(request.getName(),
+                        request.getCampus(),
+                        request.getCanteen(),
+                        request.getFloor(),
+                        request.getWindow(),
+                        request.getMinPrice(),// != null ? request.getMinPrice() : 0,
+                        request.getMaxPrice(),// != null ? request.getMaxPrice() : Integer.MAX_VALUE,
+                        request.getTags(), // 新增标签过滤条件
+                        pageable)
+                .map(foodMapper::toSummaryDto);
         return PageResponse.of(page);
     }
 

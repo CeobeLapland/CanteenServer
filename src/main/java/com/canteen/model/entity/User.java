@@ -6,10 +6,6 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 用户实体
- * <p>当前版本仅包含基础字段（id、name），后续可按需扩展
- */
 @Entity
 @Table(name = "user")
 @Getter
@@ -23,9 +19,9 @@ public class User extends BaseEntity {
     @Column(nullable = false, length = 50)
     private String name;
 
-    /** 用户权限角色（如 ROLE_USER、ROLE_ADMIN），后续权限控制用 */
+    /** 用户权限 */
     @Column(nullable = false, length = 20)
-    private String role = "ROLE_USER";
+    private String permission = "USER";
 
     // ========== 关联关系 ==========
 

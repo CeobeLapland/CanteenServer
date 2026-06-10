@@ -205,6 +205,32 @@ public class FoodController {
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
 
+    /** 有标签的筛选接口
+     * <p>POST /api/v1/foods/filter-with-tags?page=0&size=10
+     * <p>请求体示例：
+     * <pre>
+     * {
+     *   "name": "肉",
+     *   "campus": "主校区",
+     *   "canteen": "一食堂",
+     *   "floor": "二层",
+     *   "window": "窗口1",
+     *   "minPrice": 5,
+     *   "maxPrice": 20,
+     *   "tags": ["辣", "肉类"]
+     * }
+     * </pre>
+     */
+    @PostMapping("/filter-with-tags")
+    public ResponseEntity<ApiResponse<PageResponse<FoodSummaryDto>>> filterFoodsWithTags(
+            @Valid @RequestBody Requests.FilterFoodRequest request,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        PageResponse<FoodSummaryDto> result = foodService.filterFoodsWithTags(request, pageable);
+        return ResponseEntity.ok(ApiResponse.ok(result));
+    }
+
 
 
     // 其他的一部分先写在FoodService里，后续再根据需要添加到Controller里

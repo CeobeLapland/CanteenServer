@@ -1,5 +1,7 @@
 package com.canteen.model.entity;
 
+import com.canteen.model.entity.mid.FoodPost;
+import com.canteen.model.entity.mid.FoodTag;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -8,11 +10,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * 食物实体
- * 关系：Food ←→ Post : 多对多，由 Post.foods 中的 @JoinTable 维护关联表 food_post
- * 关系：Food ←→ Tag : 多对多，由 Food.tags 中的 @JoinTable 维护关联表 food_tag
- */
 @Entity
 @Table(name = "food")
 @Getter
@@ -22,7 +19,7 @@ import java.util.Set;
 @Builder
 public class Food extends BaseEntity {
 
-    /** 菜品名称，不允许为空 */
+    /** 菜品名称 */
     @Column(name = "name", nullable = false, length = 45)
     private String name;
 
@@ -34,27 +31,19 @@ public class Food extends BaseEntity {
     @Column(name = "price")
     private Integer price;
 
-    /** 菜品图片 URL（占位符） */
-    @Column(name = "image_url", length = 500)
-    private String imageUrl;
-
-
-
     /** 校区 */
     @Column(name = "campus", length = 45)
-    private String campus;
+    private String campusName;
 
     /** 食堂名称 */
     @Column(name = "canteen", length = 45)
-    private String canteen;
+    private String canteenName;
 
     /** 楼层 */
     @Column(name = "floor", length = 45)
-    private String floor;
+    private String floorName;
 
-    /** 窗口编号或名称 */
-    @Column(name = "window", length = 45)
-    private String window;
+
 
     /** 售卖时间，简单以字符串保存（比如："07:00-09:30,11:00-13:00"） */
     @Column(name = "sell_time", length = 200)
@@ -62,47 +51,62 @@ public class Food extends BaseEntity {
 
     /** 全局综合评分（0.0 ~ 5.0） */
     @Column(name = "average_rating")//, precision = 3, scale = 2)
-    private float averageRating = 0f;
+    private Float averageRating = 0f;
 
     /** 参与评分的总人数 */
     @Column(name = "rating_count")
     private Integer ratingCount = 0;
 
-    // ========== 关联关系 ==========
+
+
+
+
+
+
+    // 关联关系
+
+    /** 窗口编号或名称，多对一关系，food持有window_id外键 */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "window_id")
+    private Window window;
+
+
 
     /**
-     * 与 Post 的多对多关系（被动方）
-     * 由 Post.foods 中的 @JoinTable 维护，这里只需 mappedBy
+     * 与 Post 的多对多关系，已添加 FoodPost 中间实体，维护关系由Post负责
      */
-    @ManyToMany(mappedBy = "foods")
-    @Builder.Default
-    private Set<Post> posts = new HashSet<>();
-
-
-
-    /**
-     * 与 Tag 的多对多关系（主动方）
-     * 关联表 food_tag 存储 food_id 和 tag_id 外键列
-     */
-    @ManyToMany
-    @JoinTable(
-            name = "food_tag",
-            joinColumns = @JoinColumn(name = "food_id"),
-            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    @OneToMany(
+            mappedBy = "food",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
     )
     @Builder.Default
-    private List<Tag> tags = new ArrayList<>();
+    private List<FoodPost> foodPosts = new ArrayList<>();
 
-    // ========== 辅助方法（维护双向关系） ==========
+    /**
+     * 与Tag的多对多关系，已添加FoodTag中间实体
+     */
+    @OneToMany(
+            mappedBy = "food",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    @Builder.Default
+    private List<FoodTag> foodTags = new ArrayList<>();
+
+
+
+    // 辅助方法维护双向关系
     /** 添加标签并同步反向关系 */
     public void addTag(Tag tag) {
-        this.tags.add(tag);
-        tag.getFoods().add(this);
+        FoodTag foodTag = new FoodTag(this, tag);
+        foodTags.add(foodTag);
+        tag.getFoodTags().add(foodTag);
     }
 
     /** 移除标签并同步反向关系 */
     public void removeTag(Tag tag) {
-        this.tags.remove(tag);
-        tag.getFoods().remove(this);
+        foodTags.removeIf(ft -> ft.getFood().equals(this) && ft.getTag().equals(tag));
+        tag.getFoodTags().removeIf(ft -> ft.getFood().equals(this) && ft.getTag().equals(tag));
     }
 }

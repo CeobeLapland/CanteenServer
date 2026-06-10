@@ -1,9 +1,7 @@
 package com.canteen.model.dto;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -15,10 +13,9 @@ import java.util.Set;
  */
 public class Dtos {
 
-    // ======================================================
-    //  User DTO
-    // ======================================================
+    // region 给直接调用后端API用的DTO
 
+    // User DTO
     /** 用户信息（对外展示） */
     @Data
     public static class UserDto {
@@ -26,25 +23,22 @@ public class Dtos {
         private String name;
         private String permission; // 例如 "USER"、"ADMIN"
         private LocalDateTime createdAt;
-
-        // TODO: 后续加字段时，在 UserMapper 中同步添加映射
-        // private String avatarUrl;
     }
 
-    // ======================================================
-    //  Food DTO
-    // ======================================================
 
+
+
+
+    //  Food DTO
     /** 菜品简要信息（列表展示用） */
     @Data
     public static class FoodSummaryDto {
         private Long id;
         private String name;
         private Integer price;
-        private String imageUrl;
-        // 新增简要字段，方便客户端列表展示
-        private String campus;
+
         private String canteen;
+        private String window;
         private Float averageRating;
     }
 
@@ -55,8 +49,9 @@ public class Dtos {
         private String name;
         private String description;
         private Integer price;
-        private String imageUrl;
+
         private LocalDateTime createdAt;
+        private LocalDateTime updatedAt;
 
         // 新增详细信息字段
         private String campus;
@@ -72,10 +67,8 @@ public class Dtos {
         private int postCount;
     }
 
-    // ======================================================
+    
     //  Post DTO
-    // ======================================================
-
     /** 帖子简要信息（首页/列表） */
     @Data
     public static class PostSummaryDto {
@@ -85,7 +78,7 @@ public class Dtos {
         private Integer viewCount;
         private Integer likeCount;
         private UserDto author;
-        private List<FoodSummaryDto> foods;
+        private List<String> foods;
         private int commentCount;
         private LocalDateTime createdAt;
     }
@@ -102,14 +95,15 @@ public class Dtos {
         private UserDto author;
         private Set<FoodSummaryDto> foods;
         private List<CommentDto> comments;
+
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
     }
 
-    // ======================================================
-    //  Comment DTO
-    // ======================================================
 
+
+
+    //  Comment DTO
     /** 评论信息 */
     @Data
     public static class CommentDto {
@@ -125,7 +119,7 @@ public class Dtos {
 
 
     @Data
-    public static class WindowDto {
+    public static class WindowSearchDto {
         private String name;
 
         private String floor;
@@ -134,7 +128,30 @@ public class Dtos {
     }
 
     @Data
+    public static class WindowDetailDto {
+        private Integer id;
+        private String name;
+
+        private String floor;
+        private String canteen;
+        private String campus;
+
+        private LocalDateTime createdAt;
+
+        private List<SeasoningDto> seasonings;
+    }
+
+    @Data
     public static class TagDto {
+        private Integer id;
         private String name;
     }
+
+    @Data
+    public static class SeasoningDto {
+        private Integer id;
+        private String name;
+    }
+
+    // endregion
 }

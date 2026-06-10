@@ -1,6 +1,7 @@
 package com.canteen.mapper;
 
 import com.canteen.model.dto.Dtos.*;
+import com.canteen.model.dto.SyncDto;
 import com.canteen.model.entity.*;
 import org.mapstruct.*;
 
@@ -15,21 +16,20 @@ import java.util.Set;
  */
 public class Mappers {
 
-    // ======================================================
+    
     //  UserMapper
-    // ======================================================
     @org.mapstruct.Mapper(componentModel = "spring")
     public interface UserMapper {
 
         UserDto toDto(User user);
 
-        List<UserDto> toDtoList(List<User> users);
+        SyncDto.UserSyncDto toSyncDto(User user);
+        //List<UserDto> toDtoList(List<User> users);
     }
 
 
-    // ======================================================
+    
     //  FoodMapper
-    // ======================================================
     @org.mapstruct.Mapper(componentModel = "spring")
     public interface FoodMapper {
 
@@ -45,16 +45,19 @@ public class Mappers {
                 expression = "java(food.getTags().stream().map(com.canteen.model.entity.Tag::getName).toList())")
         FoodDetailDto toDetailDto(Food food);
 
-        List<FoodSummaryDto> toSummaryDtoList(List<Food> foods);
 
-        Set<FoodSummaryDto> toSummaryDtoSet(Set<Food> foods);
+        /** 转化为Sync DTO，包含所有字段但不包含关联对象（如 posts） */
+        SyncDto.FoodSyncDto toSyncDto(Food food);
+
+
+        //List<FoodSummaryDto> toSummaryDtoList(List<Food> foods);
+        //Set<FoodSummaryDto> toSummaryDtoSet(Set<Food> foods);
     }
 
 
-    // ======================================================
+    
     //  PostMapper
-    // ======================================================
-    @org.mapstruct.Mapper(componentModel = "spring", uses = {UserMapper.class, FoodMapper.class})
+    @org.mapstruct.Mapper(componentModel = "spring", uses = {CommentMapper.class, UserMapper.class, FoodMapper.class})
     public interface PostMapper {
 
         /**
@@ -69,62 +72,62 @@ public class Mappers {
          */
         PostDetailDto toDetailDto(Post post);
 
-        List<PostSummaryDto> toSummaryDtoList(List<Post> posts);
+
+        SyncDto.PostSyncDto toSyncDto(Post post);
+        //List<PostSummaryDto> toSummaryDtoList(List<Post> posts);
     }
 
 
-    // ======================================================
+    
     //  CommentMapper
-    // ======================================================
     @org.mapstruct.Mapper(componentModel = "spring", uses = {UserMapper.class})
     public interface CommentMapper {
 
         CommentDto toDto(Comment comment);
 
-        List<CommentDto> toDtoList(List<Comment> comments);
+        SyncDto.CommentSyncDto toSyncDto(Comment comment);
+        //List<CommentDto> toDtoList(List<Comment> comments);
     }
 
 
-    //TagMapper（后续扩展用）
+    // TagMapper
     @org.mapstruct.Mapper(componentModel = "spring")
     public interface TagMapper {
         TagDto toDto(Tag tag);
 
-        List<TagDto> toDtoList(List<Tag> tags);
+        SyncDto.TagSyncDto toSyncDto(Tag tag);
+        //List<TagDto> toDtoList(List<Tag> tags);
     }
 
-    // CampusMapper（后续扩展用）
-    /*@org.mapstruct.Mapper(componentModel = "spring")
-    public interface CampusMapper {
 
-        String toDto(Campus campus);
-    }
-
-    // CanteenMapper（后续扩展用）
-    @org.mapstruct.Mapper(componentModel = "spring")
-    public interface CanteenMapper {
-        CanteenDto toDto(Canteen canteen);
-
-        List<CanteenDto> toDtoList(List<Canteen> canteens);
-    }
-
-    // FloorMapper（后续扩展用）
-    @org.mapstruct.Mapper(componentModel = "spring")
-    public interface FloorMapper {
-        FloorDto toDto(Floor floor);
-
-        List<FloorDto> toDtoList(List<Floor> floors);
-    }*/
-
-    // WindowMapper（后续扩展用）
+    // WindowMapper
     @org.mapstruct.Mapper(componentModel = "spring")
     public interface WindowMapper {
-        @Mapping(target = "campus", source = "campus.name")
-        @Mapping(target = "canteen", source = "canteen.name")
-        @Mapping(target = "floor", source = "floor.name")
+        @Mapping(target = "campus", source = "campusName")
+        @Mapping(target = "canteen", source = "canteenName")
+        @Mapping(target = "floor", source = "floorName")
         @Mapping(target = "name", source = "name")
-        WindowDto toDto(Window window);
+        WindowSearchDto toSearchDto(Window window);
 
+        WindowDetailDto toDetailDto(Window window);
+
+        SyncDto.WindowSyncDto toSyncDto(Window window);
         //List<WindowDto> toDtoList(List<Window> windows);
+    }
+
+
+    // SeasoningMapper
+    @org.mapstruct.Mapper(componentModel = "spring")
+    public interface SeasoningMapper {
+        //这个只有Sync版本的
+        @Mapping(target = "windowId", source = "window")
+        SyncDto.SeasoningSyncDto toSyncDto(Seasoning seasoning);
+    }
+
+
+    // TypeMapper
+    @org.mapstruct.Mapper(componentModel = "spring")
+    public interface TypeMapper {
+        SyncDto.TypeSyncDto toSyncDto(Type type);
     }
 }

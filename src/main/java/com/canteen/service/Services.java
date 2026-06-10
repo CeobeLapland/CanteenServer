@@ -67,6 +67,9 @@ public class Services
         /** 筛选菜品 FilterFoodRequest */
         PageResponse<FoodSummaryDto> filterFoods(FilterFoodRequest request, Pageable pageable);
 
+        /** 筛选菜品（包含标签） FilterFoodRequest */
+        PageResponse<FoodSummaryDto> filterFoodsWithTags(FilterFoodRequest request, Pageable pageable);
+
 
         /** 获取所有Tag列表 */
         List<TagDto> getAllTags();

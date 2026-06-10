@@ -1,5 +1,7 @@
 package com.canteen.model.entity;
 
+import com.canteen.model.entity.mid.FoodPost;
+import com.canteen.model.entity.mid.PostType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -8,15 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * 帖子实体（食物评测/点评）
- * <p>关系说明：
- * <ul>
- *   <li>Post ←→ Food  : 多对多，由本类维护关联表 {@code food_post}</li>
- *   <li>Post  → Comment: 一对多，Comment 中存有 post_id 外键</li>
- *   <li>Post  → User  : 多对一，本类存有 user_id 外键（作者）</li>
- * </ul>
- */
+
 @Entity
 @Table(name = "post")
 @Getter
@@ -40,7 +34,15 @@ public class Post extends BaseEntity {
     @Column(name = "view_count")
     private Integer viewCount = 0;   // 浏览数
 
-    // ========== 关联关系 ==========
+    /** 软删除标记，默认为 false */
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted = false;
+
+
+
+
+
+    // 关联关系
 
     /**
      * 帖子作者（多对一）
@@ -51,17 +53,11 @@ public class Post extends BaseEntity {
     private User author;
 
     /**
-     * 帖子涉及的菜品（多对多，主动方）
-     * 关联表 food_post 存储 post_id 和 food_id 外键列
+     * 帖子涉及的菜品，已添加FoodPost中间实体
      */
-    @ManyToMany
-    @JoinTable(
-            name = "food_post",
-            joinColumns = @JoinColumn(name = "post_id"),
-            inverseJoinColumns = @JoinColumn(name = "food_id")
-    )
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private Set<Food> foods = new HashSet<>();
+    private List<FoodPost> foodPosts = new ArrayList<>();
 
     /**
      * 帖子下的评论列表（一对多）
@@ -71,17 +67,45 @@ public class Post extends BaseEntity {
     @Builder.Default
     private List<Comment> comments = new ArrayList<>();
 
-    // ========== 辅助方法（维护双向关系） ==========
+    /**
+     * 帖子的类型，和Type多对多关系，已添加PostType中间实体
+     */
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<PostType> postTypes = new ArrayList<>();
+
+
+
+
+    // 辅助方法维护双向关系
 
     /** 添加菜品并同步反向关系 */
     public void addFood(Food food) {
-        this.foods.add(food);
-        food.getPosts().add(this);
+        FoodPost foodPost = new FoodPost(food, this);
+        foodPosts.add(foodPost);
+        food.getFoodPosts().add(foodPost);
     }
 
     /** 移除菜品并同步反向关系 */
     public void removeFood(Food food) {
-        this.foods.remove(food);
-        food.getPosts().remove(this);
+        foodPosts.removeIf(fp -> fp.getPost().equals(this) && fp.getFood().equals(food));
+        food.getFoodPosts().removeIf(fp -> fp.getPost().equals(this) && fp.getFood().equals(food));
     }
+
+    /** 添加类型并同步反向关系 */
+    public void addType(Type type) {
+        PostType postType = new PostType(this, type);
+        postTypes.add(postType);
+        type.getPostTypes().add(postType);
+    }
+
+    /** 移除类型并同步反向关系 */
+    public void removeType(Type type) {
+        postTypes.removeIf(pt -> pt.getPost().equals(this) && pt.getType().equals(type));
+        type.getPostTypes().removeIf(pt -> pt.getPost().equals(this) && pt.getType().equals(type));
+    }
+
+    // 像和comment这种一对多关系是不是也要添加辅助方法？感觉不太必要，因为comment持有post_id外键，删除post时会自动删除关联的comment，不需要手动维护双向关系。
+    // 那要是想给post添加一个comment呢？感觉也不太麻烦，直接new一个comment对象，设置好author和post字段，然后保存comment就行了，不需要在post里维护一个addComment方法。
+    // 我明白了，对于一对多关系，如果多的一方（comment）持有外键，那么在一的一方（post）里就不需要维护一个addComment方法，因为comment对象本身就知道它属于哪个post了。只要在创建comment时正确设置post字段，并保存comment，就能自动建立关联关系，不需要在post里手动维护双向关系。
 }
