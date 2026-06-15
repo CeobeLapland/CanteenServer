@@ -23,50 +23,6 @@
 ## 项目结构
 
 ```
-canteen/
-├── pom.xml
-└── src/main/
-    ├── java/com/canteen/
-    │   ├── CanteenApplication.java          # 启动类
-    │   ├── config/
-    │   │   ├── JpaConfig.java               # 启用 JPA Auditing
-    │   │   └── WebConfig.java               # CORS 等 Web 配置
-    │   ├── controller/
-    │   │   ├── UserController.java
-    │   │   ├── FoodController.java
-    │   │   ├── PostController.java
-    │   │   └── CommentController.java
-    │   ├── service/
-    │   │   ├── Services.java                # 所有 Service 接口
-    │   │   └── impl/
-    │   │       ├── UserServiceImpl.java
-    │   │       ├── FoodServiceImpl.java
-    │   │       ├── PostServiceImpl.java
-    │   │       └── CommentServiceImpl.java
-    │   ├── repository/
-    │   │   └── Repositories.java            # 所有 Repository 接口
-    │   ├── model/
-    │   │   ├── entity/
-    │   │   │   ├── BaseEntity.java          # 公共字段基类
-    │   │   │   ├── User.java
-    │   │   │   ├── Food.java
-    │   │   │   ├── Post.java
-    │   │   │   └── Comment.java
-    │   │   ├── dto/
-    │   │   │   └── Dtos.java                # 所有 DTO
-    │   │   ├── request/
-    │   │   │   └── Requests.java            # 所有请求体对象
-    │   │   └── response/
-    │   │       ├── ApiResponse.java         # 统一响应包装
-    │   │       └── PageResponse.java        # 分页响应包装
-    │   ├── mapper/
-    │   │   └── Mappers.java                 # MapStruct 转换器
-    │   └── exception/
-    │       ├── Exceptions.java              # 自定义异常
-    │       └── GlobalExceptionHandler.java  # 全局异常处理
-    └── resources/
-        ├── application.yml                  # 主配置文件
-        └── init.sql                         # 数据库初始化脚本（参考）
 ```
 
 ---
@@ -127,73 +83,7 @@ mvn spring-boot:run
   "last": false
 }
 ```
-
 ---
 
-### 👤 User 接口
-
-| 方法 | 路径 | 描述 |
-|------|------|------|
-| GET | `/v1/users/{id}` | 获取用户信息 |
-| POST | `/v1/users` | 注册用户 |
-
-### 🍖 Food 接口
-
-| 方法 | 路径 | 描述 |
-|------|------|------|
-| GET | `/v1/foods` | 菜品列表（分页） |
-| GET | `/v1/foods/search?keyword=xxx` | 搜索菜品 |
-| GET | `/v1/foods/{id}` | 菜品详情 |
-| POST | `/v1/foods` | 新增菜品 |
-| PUT | `/v1/foods/{id}` | 更新菜品 |
-| DELETE | `/v1/foods/{id}` | 删除菜品 |
-
-### 📝 Post 接口
-
-| 方法 | 路径 | 描述 |
-|------|------|------|
-| GET | `/v1/posts` | 首页 Feed |
-| GET | `/v1/posts/search?keyword=xxx` | 搜索帖子 |
-| GET | `/v1/posts/{id}` | 帖子详情 |
-| GET | `/v1/posts/food/{foodId}` | 某菜品的帖子 |
-| GET | `/v1/posts/user/{userId}` | 某用户的帖子 |
-| POST | `/v1/posts` | 发布帖子 |
-| PUT | `/v1/posts/{id}` | 更新帖子 |
-| DELETE | `/v1/posts/{id}` | 删除帖子 |
-
-### 💬 Comment 接口
-
-| 方法 | 路径 | 描述 |
-|------|------|------|
-| GET | `/v1/posts/{postId}/comments` | 帖子评论列表 |
-| POST | `/v1/posts/{postId}/comments` | 发表评论 |
-| DELETE | `/v1/comments/{id}` | 删除评论 |
-
----
-
-## 数据关系
-
-```
-User  ──< Post >──── Food
-            │
-            └──< Comment >── User
-```
-
-- **Food ↔ Post**：多对多，关联表 `food_post`
-- **Post → Comment**：一对多
-- **User → Post**：一对多（作者）
-- **User → Comment**：一对多（评论者）
-
----
-
-## 后续扩展建议
-
-- [ ] 引入 Spring Security + JWT 认证
-- [ ] 菜品分类 / 食堂管理
-- [ ] 帖子点赞 / 收藏功能
-- [ ] 图片上传（OSS / MinIO）
-- [ ] 引入 Redis 缓存热门帖子
-- [ ] 使用 Flyway 管理数据库版本迁移
-- [ ] 评论楼中楼（树形结构）
-- [ ] Swagger/OpenAPI 接口文档
+### 接口
 

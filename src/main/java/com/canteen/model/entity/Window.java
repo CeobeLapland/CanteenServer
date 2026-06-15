@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 @Entity
-@Table(name = "window")
+@Table(name = "window_sell")
 @Getter
 @Setter
 @NoArgsConstructor

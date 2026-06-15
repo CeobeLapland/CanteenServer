@@ -1,0 +1,38 @@
+    /*
+    @Query("SELECT f FROM Food f LEFT JOIN f.tags t " +
+            "WHERE (:tags IS NULL OR t.name IN :tags) " +
+            "AND (:name IS NULL OR LOWER(f.name) LIKE LOWER(CONCAT('%', :name, '%'))) " +
+            "AND (:campus IS NULL OR f.campus = :campus) " +
+            "AND (:canteen IS NULL OR f.canteen = :canteen) " +
+            "AND (:floor IS NULL OR f.floor = :floor) " +
+            "AND (:window IS NULL OR f.window = :window)" +
+            "AND (:minPrice IS NULL OR f.price >= :minPrice) " +
+            "AND (:maxPrice IS NULL OR f.price <= :maxPrice)" +
+            "GROUP BY f.id " +
+            "HAVING (:tags IS NULL OR COUNT(DISTINCT t.id) >= 1)")
+
+     @Query("SELECT DISTINCT f FROM Food f " +
+            "JOIN f.foodTags ft " +
+            "JOIN ft.tag t " +
+            "WHERE (:name IS NULL OR LOWER(f.name) LIKE LOWER(CONCAT('%', :name, '%'))) " +
+            "AND (:campus IS NULL OR f.campus = :campusName) " +
+            "AND (:canteen IS NULL OR f.canteen = :canteenName) " +
+            "AND (:floor IS NULL OR f.floor = :floorName) " +
+            "AND (:window IS NULL OR f.window = :window) " +
+            "AND (:minPrice IS NULL OR f.price >= :minPrice) " +
+            "AND (:maxPrice IS NULL OR f.price <= :maxPrice) " +
+            "AND (:foodTags IS NULL OR t.id IN :foodTags) " +
+            "GROUP BY f.id " +
+            "HAVING (:foodTags IS NULL OR COUNT(DISTINCT t.id) >= 1)"
+    )
+     */
+
+         @Query("SELECT f FROM Food f " +
+                 "WHERE (:name IS NULL OR LOWER(f.name) LIKE LOWER(CONCAT('%', :name, '%'))) " +
+                 "AND (:campus IS NULL OR f.campus = :campusName) " +
+                 "AND (:canteen IS NULL OR f.canteen = :canteenName) " +
+                 "AND (:floor IS NULL OR f.floor = :floorName) " +
+                 "AND (:window IS NULL OR f.window = :window)" +
+                 "AND (:minPrice IS NULL OR f.price >= :minPrice) " +
+                 "AND (:maxPrice IS NULL OR f.price <= :maxPrice)"
+         )

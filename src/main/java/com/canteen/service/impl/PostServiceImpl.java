@@ -129,7 +129,9 @@ public class PostServiceImpl implements PostService {
         // 更新关联菜品（若请求中包含）
         if (request.getFoodIds() != null && !request.getFoodIds().isEmpty()) {
             // 先清空原有关联，再重新绑定
-            new java.util.HashSet<>(post.getFoods()).forEach(post::removeFood);
+            // 现在已经添加了中间实体FoodPost，所以需要先解除原有关系
+            new java.util.HashSet<>(post.getFoodPosts()).forEach(fp -> post.removeFood(fp.getFood()));
+            // 加载新菜品并建立关联
             Set<Food> newFoods = loadFoodsOrThrow(request.getFoodIds());
             newFoods.forEach(post::addFood);
         }
@@ -144,7 +146,7 @@ public class PostServiceImpl implements PostService {
     public void deletePost(Long id) {
         Post post = findPostOrThrow(id);
         // 解除与菜品的多对多关联（避免关联表残留）
-        new java.util.HashSet<>(post.getFoods()).forEach(post::removeFood);
+        new java.util.HashSet<>(post.getFoodPosts()).forEach(fp -> post.removeFood(fp.getFood()));
         postRepository.delete(post);
         log.info("帖子删除成功: id={}", id);
     }

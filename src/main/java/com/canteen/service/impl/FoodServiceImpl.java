@@ -7,6 +7,9 @@ import com.canteen.model.dto.Dtos;
 import com.canteen.model.dto.Dtos.FoodDetailDto;
 import com.canteen.model.dto.Dtos.FoodSummaryDto;
 import com.canteen.model.entity.Food;
+import com.canteen.model.entity.Tag;
+import com.canteen.model.entity.Window;
+import com.canteen.model.request.Requests;
 import com.canteen.model.request.Requests.FilterFoodRequest;
 import com.canteen.model.request.Requests.CreateFoodRequest;
 import com.canteen.model.response.PageResponse;
@@ -40,20 +43,17 @@ public class FoodServiceImpl implements FoodService {
     private final TagRepository tagRepository;
     private final Mappers.TagMapper tagMapper;
 
-    // 把其他四个仓库也写一下吧，先这样凑合，能跑就行
-    //private final Repositories.CampusRepository campusRepository;
-    //private final Repositories.CanteenRepository canteenRepository;
-    //private final Repositories.FloorRepository postRepository;
+    // 先这样凑合，能跑就行
     private final WindowRepository windowRepository;
     private final Mappers.WindowMapper windowMapper;
 
     @Override
     @Transactional(readOnly = true)
     public FoodDetailDto getFoodById(Long id) {
-        Food food = findFoodOrThrow(id);
+        Food food = foodRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("菜品", id));
         FoodDetailDto dto = foodMapper.toDetailDto(food);
-        // 手动填充帖子数量，避免加载整个 posts 集合
-        dto.setPostCount(food.getPosts().size());
+
         return dto;
     }
 
@@ -62,6 +62,14 @@ public class FoodServiceImpl implements FoodService {
     public PageResponse<FoodSummaryDto> getAllFoods(Pageable pageable) {
         Page<FoodSummaryDto> page = foodRepository.findAll(pageable)
                 .map(foodMapper::toSummaryDto);
+        return PageResponse.of(page);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponse<FoodDetailDto> getAllFoodDetails(Pageable pageable) {
+        Page<FoodDetailDto> page = foodRepository.findAll(pageable)
+                .map(foodMapper::toDetailDto);
         return PageResponse.of(page);
     }
 
@@ -102,87 +110,143 @@ public class FoodServiceImpl implements FoodService {
     @Override
     @Transactional
     public FoodDetailDto createFood(CreateFoodRequest request) {
+
+        //先用window的名称查出对象
+        // 目前正在填充示例数据，为了方便起见，如果窗口不存在就创建一个新的窗口对象并保存到数据库里，后续可以改成严格要求窗口必须存在的逻辑
+        Window window = windowRepository.findByName(request.getWindowName())
+                .orElseGet(() -> {
+                    Window newWindow = Window.builder()
+                            .name(request.getWindowName())
+                            .campusName(request.getCampusName())
+                            .canteenName(request.getCanteenName())
+                            .floorName(request.getFloorName())
+                            .build();
+                    return windowRepository.save(newWindow);
+                });
+        //return new BadRequestException("窗口不存在: " + request.getWindowName())
+
+        //先构建除了tags以外的Food实体
         Food food = Food.builder()
                 .name(request.getName())
                 .description(request.getDescription())
                 .price(request.getPrice())
                 //.imageUrl(request.getImageUrl())
-                .campus(request.getCampus())
-                .canteen(request.getCanteen())
-                .floor(request.getFloor())
-                .window(request.getWindow())
+                .campusName(request.getCampusName())
+                .canteenName(request.getCanteenName())
+                .floorName(request.getFloorName())
+                .window(window)
                 .sellTime(request.getSellTime())
-                .tags(request.getTags() == null ? new ArrayList<>() : request.getTags())
                 .build();
 
-        Food saved = foodRepository.save(food);
-        log.info("菜品创建成功: id={}, name={}", saved.getId(), saved.getName());
+        //再把request里的List<String> tags转换成List<Tag>，查不到就创建一个新的Tag，并且添加中间实体FoodTag关系
+        if (request.getTags() != null) {
+            for (String tagName : request.getTags()) {
+                Tag tag = tagRepository.findByName(tagName)
+                        .orElseGet(() -> {
+                            Tag newTag = Tag.builder()
+                                    .name(tagName)
+                                    .build();
+                            return tagRepository.save(newTag);
+                        });
+                //tags.add(tag);
+                food.addTag(tag);
+            }
+        }
+        //至于和Post的关系留到PostServiceImpl里处理，FoodServiceImpl只负责Food的增删改查，不涉及Post的业务逻辑
 
+        Food saved = foodRepository.save(food);//这个saved和food是同一个对象，save方法会把id等自动生成的字段填充到原对象里，所以直接返回food也行
         FoodDetailDto dto = foodMapper.toDetailDto(saved);
-        dto.setPostCount(0);
+        log.info("菜品创建成功: id={}", saved.getId());
+
         return dto;
     }
 
     @Override
     @Transactional
     public List<FoodDetailDto> createFoods(List<CreateFoodRequest> requests) {
-        List<Food> foods = requests.stream()
-                .map(req -> Food.builder()
-                        .name(req.getName())
-                        .description(req.getDescription())
-                        .price(req.getPrice())
-                        //.imageUrl(req.getImageUrl())
-                        .campus(req.getCampus())
-                        .canteen(req.getCanteen())
-                        .floor(req.getFloor())
-                        .window(req.getWindow())
-                        .sellTime(req.getSellTime())
-                        .tags(req.getTags() == null ? new ArrayList<>() : req.getTags())
-                        .build())
-                .toList();
-
-        List<Food> savedFoods = foodRepository.saveAll(foods);
-        log.info("批量菜品创建成功: count={}", savedFoods.size());
-
-        return savedFoods.stream()
-                .map(foodMapper::toDetailDto)
-                .peek(dto -> dto.setPostCount(0))
-                .toList();
+        // 这里简单地逐条调用 createFood 方法，实际项目中可以优化为批量处理以提高性能
+        List<FoodDetailDto> createdList = new ArrayList<>();
+        for (CreateFoodRequest request : requests) {
+            createdList.add(createFood(request));
+        }
+        return createdList;
     }
 
     @Override
     @Transactional
-    public FoodDetailDto updateFood(Long id, CreateFoodRequest request) {
-        Food food = findFoodOrThrow(id);
+    public FoodDetailDto updateFood(Long id, Requests.UpdateFoodRequest request) {
+        Food food = foodRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("菜品", id));
 
-        // 只更新非空字段（占位符：可引入专用 UpdateFoodRequest 精细控制）
-        if (request.getName() != null)        food.setName(request.getName());
-        if (request.getDescription() != null) food.setDescription(request.getDescription());
-        if (request.getPrice() != null)       food.setPrice(request.getPrice());
-        //if (request.getImageUrl() != null)    food.setImageUrl(request.getImageUrl());
+        // 只更新非空字段
+        if (request.getName() != null)
+            food.setName(request.getName());
+        if (request.getDescription() != null)
+            food.setDescription(request.getDescription());
+        if (request.getPrice() != null)
+            food.setPrice(request.getPrice());
+        //if (request.getImageUrl() != null)
+        //    food.setImageUrl(request.getImageUrl());
+        if (request.getCampusName() != null)
+            food.setCampusName(request.getCampusName());
+        if (request.getCanteenName() != null)
+            food.setCanteenName(request.getCanteenName());
+        if (request.getFloorName() != null)
+            food.setFloorName(request.getFloorName());
+        if (request.getWindowName() != null) {
+            Window window = windowRepository.findByName(request.getWindowName())
+                    .orElseThrow(() -> new BadRequestException("窗口不存在: " + request.getWindowName()));
+            food.setWindow(window);
+        }
+        if (request.getSellTime() != null)
+            food.setSellTime(request.getSellTime());
 
-        // 更新新增字段
-        if (request.getCampus() != null)      food.setCampus(request.getCampus());
-        if (request.getCanteen() != null)     food.setCanteen(request.getCanteen());
-        if (request.getFloor() != null)       food.setFloor(request.getFloor());
-        if (request.getWindow() != null)      food.setWindow(request.getWindow());
-        if (request.getSellTime() != null)    food.setSellTime(request.getSellTime());
-        if (request.getTags() != null)        food.setTags(request.getTags());
+        // 更新标签关系，先清除原有关系再添加新关系
+        if (request.getTags() != null) {
+            // 先移除所有旧标签关系
+            food.getFoodTags().forEach(ft -> {
+                Tag tag = ft.getTag();
+                food.removeTag(tag);
+            });
+            // 再添加新标签关系
+            for (String tagName : request.getTags()) {
+                Tag tag = tagRepository.findByName(tagName)
+                        .orElseGet(() -> {
+                            Tag newTag = Tag.builder()
+                                    .name(tagName)
+                                    .build();
+                            return tagRepository.save(newTag);
+                        });
+                food.addTag(tag);
+            }
+        }
 
-        Food saved = foodRepository.save(food);
-        log.info("菜品更新成功: id={}", saved.getId());
+        //至于和Post的关系留到PostServiceImpl里处理，FoodServiceImpl只负责Food的增删改查，不涉及Post的业务逻辑
 
-        FoodDetailDto dto = foodMapper.toDetailDto(saved);
-        dto.setPostCount(saved.getPosts().size());
+        Food updated = foodRepository.save(food);
+        FoodDetailDto dto = foodMapper.toDetailDto(updated);
+        log.info("菜品更新成功: id={}", id);
         return dto;
     }
 
     @Override
     @Transactional
     public void deleteFood(Long id) {
-        Food food = findFoodOrThrow(id);
-        // 删除前先解除与所有 Post 的关联，避免外键约束异常
-        food.getPosts().forEach(post -> post.getFoods().remove(food));
+        Food food = foodRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("菜品", id));
+        // 删除前先解除与所有 Tag 的关系，避免外键约束问题
+        food.getFoodTags().forEach(ft -> {
+            Tag tag = ft.getTag();
+            food.removeTag(tag);
+        });
+        // 删除前先解除与所有 Post 的关系，避免外键约束问题（虽然现在FoodPost中间表的级联设置是ALL，但为了安全起见，还是先手动解除关系）
+        food.getFoodPosts().forEach(fp -> {
+            // 这里不需要删除Post实体，只需要解除Food和Post的关系，FoodPost中间实体会被级联删除
+            fp.getPost().getFoodPosts().remove(fp);
+            food.getFoodPosts().remove(fp);
+        });
+        // 和window的关系不用解除，因为Food持有window_id外键，删除Food时不会影响Window实体，也不会违反外键约束
+        // 删除Food实体
         foodRepository.delete(food);
         log.info("菜品删除成功: id={}", id);
     }
@@ -235,17 +299,10 @@ public class FoodServiceImpl implements FoodService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Dtos.WindowDto> getAllWindows() {
+    public List<Dtos.WindowSearchDto> getAllWindows() {
         return windowRepository.findAll().stream()
-                .map(windowMapper::toDto)
+                .map(windowMapper::toSearchDto)
                 .toList();
     }
 
-
-    // ==================== 内部工具方法 ====================
-
-    private Food findFoodOrThrow(Long id) {
-        return foodRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("菜品", id));
-    }
 }

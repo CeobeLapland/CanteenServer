@@ -3,6 +3,9 @@ package com.canteen.mapper;
 import com.canteen.model.dto.Dtos.*;
 import com.canteen.model.dto.SyncDto;
 import com.canteen.model.entity.*;
+import com.canteen.model.entity.mid.FoodPost;
+import com.canteen.model.entity.mid.FoodTag;
+import com.canteen.model.entity.mid.PostType;
 import org.mapstruct.*;
 
 import java.util.List;
@@ -33,20 +36,22 @@ public class Mappers {
     @org.mapstruct.Mapper(componentModel = "spring")
     public interface FoodMapper {
 
+        //把Window转化为String
+        @Mapping(target = "window", source = "window.name")
         FoodSummaryDto toSummaryDto(Food food);
 
-        /**
-         * 转换为详情 DTO
-         * postCount 由 Service 层手动填充（避免 N+1 查询）
-         */
-        @Mapping(target = "postCount", ignore = true)
+        /** 转换为详情 DTO */
+        //@Mapping(target = "postCount", ignore = true)
         //@Mapping(target = "tags", source = "tags", defaultValueExpression = "java(tags.stream().map(Tag::getName).toList())")
-        @Mapping(target = "tags",
-                expression = "java(food.getTags().stream().map(com.canteen.model.entity.Tag::getName).toList())")
+        //@Mapping(target = "tags", expression = "java(food.getTags().stream().map(com.canteen.model.entity.Tag::getName).toList())")
+        //现在已经改成了FoodTag中间表，所以Food里用的是List<FoodTag>，需要在这里转换一下
+        @Mapping(target = "tags", expression = "java(food.getFoodTags().stream().map(ft -> ft.getTag().getName()).toList())")
+        @Mapping(target = "window", source = "window.name")
         FoodDetailDto toDetailDto(Food food);
 
 
         /** 转化为Sync DTO，包含所有字段但不包含关联对象（如 posts） */
+        @Mapping(target = "windowId", source = "window.id")
         SyncDto.FoodSyncDto toSyncDto(Food food);
 
 
@@ -120,7 +125,7 @@ public class Mappers {
     @org.mapstruct.Mapper(componentModel = "spring")
     public interface SeasoningMapper {
         //这个只有Sync版本的
-        @Mapping(target = "windowId", source = "window")
+        @Mapping(target = "windowId", source = "window.id")
         SyncDto.SeasoningSyncDto toSyncDto(Seasoning seasoning);
     }
 
@@ -129,5 +134,31 @@ public class Mappers {
     @org.mapstruct.Mapper(componentModel = "spring")
     public interface TypeMapper {
         SyncDto.TypeSyncDto toSyncDto(Type type);
+    }
+
+
+
+    //一些中间实体的Mapper，不知道要不要写
+    @org.mapstruct.Mapper(componentModel = "spring")
+    public interface FoodPostMapper {
+        @Mapping(target = "foodId", source = "food.id")
+        @Mapping(target = "postId", source = "post.id")
+        SyncDto.FoodPostSyncDto toSyncDto(FoodPost foodPost);
+    }
+
+
+    @org.mapstruct.Mapper(componentModel = "spring")
+    public interface FoodTagMapper {
+        @Mapping(target = "foodId", source = "food.id")
+        @Mapping(target = "tagId", source = "tag.id")
+        SyncDto.FoodTagSyncDto toSyncDto(FoodTag foodTag);
+    }
+
+
+    @org.mapstruct.Mapper(componentModel = "spring")
+    public interface PostTypeMapper {
+        @Mapping(target = "postId", source = "post.id")
+        @Mapping(target = "typeId", source = "type.id")
+        SyncDto.PostTypeSyncDto toSyncDto(PostType postType);
     }
 }

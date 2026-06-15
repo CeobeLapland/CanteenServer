@@ -40,6 +40,7 @@ public class Requests {
     @Data
     public static class CreateFoodRequest {
 
+
         @NotBlank(message = "菜品名称不能为空")
         @Size(max = 100, message = "菜品名称不超过 100 字")
         private String name;
@@ -48,22 +49,24 @@ public class Requests {
         private String description;
 
         @NotNull(message = "价格不能为空")
-        @DecimalMin(value = "0.01", message = "价格必须大于 0")
+        @Min(value = 0, message = "价格必须大于或等于 0")
         private Integer price;
 
-        private String imageUrl;
+        //private String imageUrl;
 
         // 新增字段：地理/销售信息
-        private String campus;
-        private String canteen;
-        private String floor;
-        private String window;
+        private String campusName;
+        private String canteenName;
+        private String floorName;
+
+        //private Long windowId;
+        private String windowName;//创建请求时不知道ID
+
         private String sellTime;
 
         /** 标签列表，允许为空 */
-        private List<Tag> tags;
+        private List<String> tags;
 
-        // TODO: private String category;
     }
 
 
@@ -79,21 +82,24 @@ public class Requests {
         @DecimalMin(value = "0.01", message = "价格必须大于 0")
         private Integer price;
 
-        private String imageUrl;
+        //private String imageUrl;
 
         // 新增字段：地理/销售信息
-        private String campus;
-        private String canteen;
-        private String floor;
-        private String window;
+        private String campusName;
+        private String canteenName;
+        private String floorName;
+
+        //private Long windowid;
+        private String windowName;//创建请求时不知道ID
+
         private String sellTime;
 
         /** 标签列表，允许为空 */
-        private List<Tag> tags;
+        private List<String> tags;
     }
 
 
-    /** 删选菜品请求（GET 请求的查询参数） */
+    /** 筛选菜品请求（GET 请求的查询参数） */
     @Data
     public static class FilterFoodRequest {
 

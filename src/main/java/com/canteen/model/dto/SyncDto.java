@@ -2,6 +2,7 @@ package com.canteen.model.dto;
 
 
 import jakarta.persistence.criteria.CriteriaBuilder;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 public class SyncDto
 {
     /** Food 实体的全量信息 */
+    @Data
     public static class FoodSyncDto
     {
         private Long id;
@@ -37,6 +39,7 @@ public class SyncDto
 
 
     /** Tag 实体的全量信息 */
+    @Data
     public static class TagSyncDto {
         private Long id;
         private String name;
@@ -47,6 +50,7 @@ public class SyncDto
 
 
     /** Window 实体的全量信息 */
+    @Data
     public static class WindowSyncDto {
         private Long id;
         private String name;
@@ -60,6 +64,7 @@ public class SyncDto
     }
 
     /** Seasoning 实体的全量信息 */
+    @Data
     public static class SeasoningSyncDto {
         private Long id;
         private String name;
@@ -71,6 +76,7 @@ public class SyncDto
     }
 
     /** Post 实体的全量信息 */
+    @Data
     public static class PostSyncDto {
         private Long id;
         private String title;
@@ -86,6 +92,7 @@ public class SyncDto
     }
 
     /** Type 实体的全量信息 */
+    @Data
     public static class TypeSyncDto {
         private Long id;
         private String name;
@@ -95,6 +102,7 @@ public class SyncDto
     }
 
     /** Comment 实体的全量信息 */
+    @Data
     public static class CommentSyncDto {
         private Long id;
         private String content;
@@ -109,6 +117,7 @@ public class SyncDto
     //User好像不用同步缓存
     //但还是先写个吧
     /** User 实体的全量信息 */
+    @Data
     public static class UserSyncDto {
         private Long id;
         private String username;
@@ -123,6 +132,7 @@ public class SyncDto
 
     // 多对多的中间表信息
     /** Food-Tag 关联信息 */
+    @Data
     public static class FoodTagSyncDto {
         private Long foodId;
         private Long tagId;
@@ -132,6 +142,7 @@ public class SyncDto
     }
 
     /** Food-Post 关联信息 */
+    @Data
     public static class FoodPostSyncDto {
         private Long foodId;
         private Long postId;
@@ -141,6 +152,7 @@ public class SyncDto
     }
 
     /** Post-Type 关联信息 */
+    @Data
     public static class PostTypeSyncDto {
         private Long postId;
         private Long typeId;
@@ -149,4 +161,23 @@ public class SyncDto
         private LocalDateTime updatedAt;
     }
 
+
+
+    /** 整体Dto，即包含所有实体和关联信息的DTO，供前端全量同步使用 */
+    @Data
+    public static class AllSyncDto {
+        //先把所有privite全改成public，后续再根据需要改回private并添加getter/setter
+        public java.util.List<FoodSyncDto> foods;
+        public java.util.List<TagSyncDto> tags;
+        public java.util.List<WindowSyncDto> windows;
+        public java.util.List<SeasoningSyncDto> seasonings;
+        public java.util.List<PostSyncDto> posts;
+        public java.util.List<TypeSyncDto> types;
+        public java.util.List<CommentSyncDto> comments;
+        public java.util.List<UserSyncDto> users;
+
+        public java.util.List<FoodTagSyncDto> foodTags;
+        public java.util.List<FoodPostSyncDto> foodPosts;
+        public java.util.List<PostTypeSyncDto> postTypes;
+    }
 }

@@ -66,6 +66,15 @@
             <version>${mapstruct.version}</version>
         </dependency>
 
+
+        <!-- Java8 时间类型 Jackson 适配包 -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>2.15.2</version>
+        </dependency>
+
+
         <!-- Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

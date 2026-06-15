@@ -1,6 +1,7 @@
 package com.canteen.service;
 
 import com.canteen.model.dto.Dtos.*;
+import com.canteen.model.dto.SyncDto;
 import com.canteen.model.request.Requests.*;
 import com.canteen.model.response.PageResponse;
 import org.springframework.data.domain.Pageable;
@@ -46,6 +47,9 @@ public class Services
         /** 获取所有菜品（分页） */
         PageResponse<FoodSummaryDto> getAllFoods(Pageable pageable);
 
+        /** 获取所有菜品（分页）的详细信息 */
+        PageResponse<FoodDetailDto> getAllFoodDetails(Pageable pageable);
+
         /** 按关键词搜索菜品（分页） */
         PageResponse<FoodSummaryDto> searchFoods(String keyword, Pageable pageable);
 
@@ -58,7 +62,7 @@ public class Services
         /** 更新菜品
          * 这个目前先用CreateFoodRequest，后续如果需要区分创建和更新的字段，再换成 UpdateFoodRequest。
          */
-        FoodDetailDto updateFood(Long id, CreateFoodRequest request);
+        FoodDetailDto updateFood(Long id, UpdateFoodRequest request);
 
         /** 删除菜品 */
         void deleteFood(Long id);
@@ -75,7 +79,7 @@ public class Services
         List<TagDto> getAllTags();
 
         /** 获取所有窗口列表（包含食堂、楼层、窗口信息） */
-        List<WindowDto> getAllWindows();
+        List<WindowSearchDto> getAllWindows();
     }
 
 
@@ -123,5 +127,48 @@ public class Services
 
         /** 删除评论 */
         void deleteComment(Long commentId);
+    }
+
+
+
+
+    //SyncService
+    public interface SyncService
+    {
+        /** 同步菜品数据（全量或增量） */
+        List<SyncDto.FoodSyncDto> syncFoods(String since);
+
+        /** 同步窗口数据（全量或增量） */
+        List<SyncDto.WindowSyncDto> syncWindows(String since);
+
+        /** 同步标签数据（全量或增量） */
+        List<SyncDto.TagSyncDto> syncTags(String since);
+
+        /** 同步帖子数据（全量或增量） */
+        List<SyncDto.PostSyncDto> syncPosts(String since);
+
+        /** 同步评论数据（全量或增量） */
+        List<SyncDto.CommentSyncDto> syncComments(String since);
+
+        /** 同步用户数据（全量或增量），这个不一定会用 */
+        List<SyncDto.UserSyncDto> syncUsers(String since);
+
+        /** 同步调料数据（全量或增量） */
+        List<SyncDto.SeasoningSyncDto> syncSeasonings(String since);
+
+        /** 同步类型数据（全量或增量） */
+        List<SyncDto.TypeSyncDto> syncTypes(String since);
+
+
+        //下面是同步多对多实体关系
+
+        /** 同步 FoodTag 关系数据（全量或增量） */
+        List<SyncDto.FoodTagSyncDto> syncFoodTags(String since);
+
+        /** 同步 FoodPost 关系数据（全量或增量） */
+        List<SyncDto.FoodPostSyncDto> syncFoodPosts(String since);
+
+        /** 同步 PostType 关系数据（全量或增量） */
+        List<SyncDto.PostTypeSyncDto> syncPostTypes(String since);
     }
 }

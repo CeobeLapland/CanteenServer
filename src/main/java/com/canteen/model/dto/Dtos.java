@@ -63,8 +63,7 @@ public class Dtos {
         private Float averageRating;
         private Integer ratingCount;
 
-        /** 该菜品关联的帖子数量（统计信息） */
-        private int postCount;
+        //private int postCount;
     }
 
     
@@ -129,7 +128,7 @@ public class Dtos {
 
     @Data
     public static class WindowDetailDto {
-        private Integer id;
+        private Long id;
         private String name;
 
         private String floor;
@@ -143,13 +142,13 @@ public class Dtos {
 
     @Data
     public static class TagDto {
-        private Integer id;
+        private Long id;
         private String name;
     }
 
     @Data
     public static class SeasoningDto {
-        private Integer id;
+        private Long id;
         private String name;
     }
 

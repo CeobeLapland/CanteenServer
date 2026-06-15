@@ -73,16 +73,31 @@ public class FoodController {
 
     /**
      * 获取所有菜品（分页）
-     * <p>GET /api/v1/foods?page=0&size=10&sort=name,asc
+     * <p>GET /api/v1/foods?page=0&size=20&sort=name,asc
      * @param page 页码（从 0 开始，默认 0）
-     * @param size 每页数量（默认 10）
+     * @param size 每页数量（默认 20）
      */
     @GetMapping
     public ResponseEntity<ApiResponse<PageResponse<FoodSummaryDto>>> getAllFoods(
-            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size)
+            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size)
     {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         PageResponse<FoodSummaryDto> result = foodService.getAllFoods(pageable);
+        return ResponseEntity.ok(ApiResponse.ok(result));
+    }
+
+    /**
+     * 获取所有菜品的详细信息，分页
+     * <p>GET /api/v1/foods/details?page=0&size=20
+     * <p>这个接口返回 FoodDetailDto 列表，包含了菜品的详细信息（例如卖饭时间、标签等），供前端在需要展示完整信息的场景使用（例如菜品详情页）。如果前端只需要展示简要信息（例如菜品列表页），建议使用 /api/v1/foods 接口获取 FoodSummaryDto 列表，性能更好。
+     * 但其实差不了几个字节
+     */
+    @GetMapping("/details")
+    public ResponseEntity<ApiResponse<PageResponse<FoodDetailDto>>> getAllFoodDetails(
+            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size)
+    {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        PageResponse<FoodDetailDto> result = foodService.getAllFoodDetails(pageable);
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
 
@@ -164,7 +179,7 @@ public class FoodController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<FoodDetailDto>> updateFood(
             @PathVariable Long id,
-            @Valid @RequestBody CreateFoodRequest request) {
+            @Valid @RequestBody Requests.UpdateFoodRequest request) {
         FoodDetailDto updated = foodService.updateFood(id, request);
         return ResponseEntity.ok(ApiResponse.ok("更新成功", updated));
     }
@@ -249,38 +264,9 @@ public class FoodController {
      * <p>GET /api/v1/foods/windows
      */
     @GetMapping("/windows")
-    public ResponseEntity<ApiResponse<List<Dtos.WindowDto>>> getAllWindows() {
-        List<Dtos.WindowDto> windows = foodService.getAllWindows();
+    public ResponseEntity<ApiResponse<List<Dtos.WindowSearchDto>>> getAllWindows() {
+        List<Dtos.WindowSearchDto> windows = foodService.getAllWindows();
         return ResponseEntity.ok(ApiResponse.ok(windows));
     }
 
-    /**
-     * 获取所有floor列表（不分页）
-     * <p>GET /api/v1/foods/floors
-     */
-    /*@GetMapping("/floors")
-    public ResponseEntity<ApiResponse<List<Dtos.FloorDto>>> getAllFloors() {
-        List<Dtos.FloorDto> floors = foodService.getAllFloors();
-        return ResponseEntity.ok(ApiResponse.ok(floors));
-    }*/
-
-    /**
-     * 获取所有canteen列表（不分页）
-     * <p>GET /api/v1/foods/canteens
-     */
-    /*@GetMapping("/canteens")
-    public ResponseEntity<ApiResponse<List<Dtos.CanteenDto>>> getAllCanteens() {
-        List<Dtos.CanteenDto> canteens = foodService.getAllCanteens();
-        return ResponseEntity.ok(ApiResponse.ok(canteens));
-    }*/
-
-    /**
-     * 获取所有campus列表（不分页）
-     * <p>GET /api/v1/foods/campuses
-     */
-    /*@GetMapping("/campuses")
-    public ResponseEntity<ApiResponse<List<Dtos.CampusDto>>> getAllCampuses() {
-        List<Dtos.CampusDto> campuses = foodService.getAllCampuses();
-        return ResponseEntity.ok(ApiResponse.ok(campuses));
-    }*/
 }
